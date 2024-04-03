@@ -73,6 +73,9 @@ const AudioPlayer = ({ data, url, name }: Props) => {
   };
   useEffect(() => {
     let intervalVar: NodeJS.Timeout;
+    if (audioRef.current?.currentTime === 0) {
+      setProgress(0);
+    }
 
     if (isPlaying && progress <= 100) {
       intervalVar = setInterval(() => {
