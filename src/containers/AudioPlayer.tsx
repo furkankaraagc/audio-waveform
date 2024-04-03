@@ -41,9 +41,10 @@ const AudioPlayer = ({ data, url, name }: Props) => {
       ctx.fillRect(x, y, 3, columnHeight);
     });
   }, [data, progress]);
+
   useEffect(() => {
     if (audioRef.current?.duration) {
-      const duration0 = Math.floor(audioRef.current.duration);
+      const duration0 = audioRef.current.duration;
       setDuration(duration0);
     }
 
@@ -79,9 +80,10 @@ const AudioPlayer = ({ data, url, name }: Props) => {
           const newProgress = prevProgress + 5 / duration; // cursor speed
           audioRef.current && setCurrentTime(audioRef.current.currentTime);
 
-          if (newProgress > 100) {
+          if (audioRef.current?.currentTime === duration) {
             setIsPlaying(false);
           }
+
           return newProgress >= 100 ? 100 : newProgress;
         });
       }, 50);
@@ -142,7 +144,7 @@ const AudioPlayer = ({ data, url, name }: Props) => {
   ) => {
     const audioElement = event.currentTarget;
     if (audioElement instanceof HTMLAudioElement) {
-      const duration0 = Math.floor(audioElement.duration);
+      const duration0 = audioElement.duration;
       setDuration(duration0);
     }
   };
