@@ -82,8 +82,10 @@ const AudioPlayer = ({ data, url, name }: Props) => {
         setProgress((prevProgress) => {
           const newProgress = prevProgress + 5 / duration; // cursor speed
           audioRef.current && setCurrentTime(audioRef.current.currentTime);
-
-          if (audioRef.current?.currentTime === duration) {
+          if (
+            audioRef.current &&
+            Math.floor(audioRef.current?.currentTime) === Math.floor(duration)
+          ) {
             setIsPlaying(false);
           }
 
@@ -151,13 +153,12 @@ const AudioPlayer = ({ data, url, name }: Props) => {
       setDuration(duration0);
     }
   };
-
   return (
     <div className='border p-4 rounded-lg '>
       <h1 className='pb-4 text-lg font-normal'>{name ? name : 'Demo'}</h1>
       <div className='flex'>
         <button
-          className='border w-[60px] h-[60px] p-4 rounded-full   hover:opacity-90 ease-in-out transition-all '
+          className='border w-[60px] h-[60px] aspect-square p-4 rounded-full   hover:opacity-90 ease-in-out transition-all '
           type='button'
           onClick={togglePlay}
         >
