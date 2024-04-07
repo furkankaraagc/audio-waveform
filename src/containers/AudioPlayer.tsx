@@ -35,10 +35,9 @@ const AudioPlayer = ({ data, url, name }: Props) => {
       const columnHeight = (value / maxDataValue) * canvas.height;
       const x = index * columnWidth;
       const y = canvas.height - columnHeight;
-
-      // ctx.fillRect(x, y, columnWidth, columnHeight);
-      ctx.fillStyle = index < progress ? '#FF4700' : 'gray';
-      ctx.fillRect(x, y, 3, columnHeight);
+      ctx.fillStyle =
+        index * (100 / data.length) < progress ? '#FF4700' : 'gray';
+      ctx.fillRect(x, y, columnWidth - 1, columnHeight);
     });
   }, [data, progress]);
 
@@ -58,29 +57,18 @@ const AudioPlayer = ({ data, url, name }: Props) => {
       observer.disconnect();
     };
   }, [audioRef]);
-  const calculateProgress = (event: React.MouseEvent<HTMLCanvasElement>) => {
-    const divWidth = (event.target as HTMLCanvasElement).offsetWidth;
-    const clickPosition =
-      event.clientX -
-      (event.target as HTMLCanvasElement).getBoundingClientRect().left;
-    const newProgress = (clickPosition * 100) / divWidth;
-    if (audioRef.current) {
-      const newCurrentTime = Math.floor((newProgress / 100) * duration);
-      setProgress(newProgress);
-      setCurrentTime(newCurrentTime);
-      audioRef.current.currentTime = newCurrentTime;
-    }
-  };
-  useEffect(() => {
-    let intervalVar: NodeJS.Timeout;
-    if (audioRef.current?.currentTime === 0) {
-      setProgress(0);
-    }
 
-    if (isPlaying && progress <= 100) {
-      intervalVar = setInterval(() => {
+  useEffect(() => {
+    const milisecond = 17;
+    const updateProgress = () => {
+      if (audioRef.current?.currentTime === 0) {
+        setProgress(0);
+      }
+
+      if (isPlaying && progress <= 100) {
         setProgress((prevProgress) => {
-          const newProgress = prevProgress + 5 / duration; // cursor speed
+          const newProgress = prevProgress + milisecond / 10 / duration; // cursor speed
+
           audioRef.current && setCurrentTime(audioRef.current.currentTime);
           if (
             audioRef.current &&
@@ -91,11 +79,17 @@ const AudioPlayer = ({ data, url, name }: Props) => {
 
           return newProgress >= 100 ? 100 : newProgress;
         });
-      }, 50);
-    }
+      }
+    };
+
+    const interval = setInterval(
+      updateProgress,
+
+      milisecond,
+    );
 
     return () => {
-      clearInterval(intervalVar);
+      clearInterval(interval);
     };
   }, [isPlaying]);
 
@@ -112,6 +106,19 @@ const AudioPlayer = ({ data, url, name }: Props) => {
       document.removeEventListener('mouseup', handleMouseUp);
     };
   }, [dragging]);
+  const calculateProgress = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    const divWidth = (event.target as HTMLCanvasElement).offsetWidth;
+    const clickPosition =
+      event.clientX -
+      (event.target as HTMLCanvasElement).getBoundingClientRect().left;
+    const newProgress = (clickPosition * 100) / divWidth;
+    if (audioRef.current) {
+      const newCurrentTime = Math.floor((newProgress / 100) * duration);
+      setProgress(newProgress);
+      setCurrentTime(newCurrentTime);
+      audioRef.current.currentTime = newCurrentTime;
+    }
+  };
 
   const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {
     if (!isPlaying && audioRef.current) {
@@ -178,12 +185,12 @@ const AudioPlayer = ({ data, url, name }: Props) => {
           <div className=' mt-auto w-[50px] pr-2'>
             {calculateTime(currentTime)}
           </div>
-          <div className=' relative w-[500px]'>
+          <div className=' relative w-[600px]'>
             <canvas
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
               ref={canvasRef}
-              width='500'
+              width='600'
               height='100'
               className='border-b-2'
             />

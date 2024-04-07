@@ -51,7 +51,7 @@ const useWaveform = () => {
   };
   const filterData = (audioBuffer: AudioBuffer) => {
     const rawData = audioBuffer.getChannelData(0);
-    const samples = 100;
+    const samples = 120;
     const blockSize = Math.floor(rawData.length / samples);
     const filteredData = [];
     for (let i = 0; i < samples; i++) {

@@ -11,11 +11,7 @@ const ExampleAudio = () => {
     visualizeAudio(url);
   }, []);
 
-  return (
-    <>
-      <AudioPlayer data={data} url={url} />
-    </>
-  );
+  return <AudioPlayer data={data} url={url} />;
 };
 
 export default ExampleAudio;
