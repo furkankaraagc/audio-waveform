@@ -37,6 +37,7 @@ const AudioPlayer = ({ data, url, name }: Props) => {
       const y = canvas.height - columnHeight;
       ctx.fillStyle =
         index * (100 / data.length) < progress ? '#FF4700' : 'gray';
+
       ctx.fillRect(x, y, columnWidth - 1, columnHeight);
     });
   }, [data, progress]);
@@ -59,31 +60,13 @@ const AudioPlayer = ({ data, url, name }: Props) => {
   }, [audioRef]);
 
   useEffect(() => {
+    if (audioRef.current?.currentTime === 0) {
+      setProgress(0);
+    }
     const milisecond = 17;
-    const updateProgress = () => {
-      if (audioRef.current?.currentTime === 0) {
-        setProgress(0);
-      }
-
-      if (isPlaying && progress <= 100) {
-        setProgress((prevProgress) => {
-          const newProgress = prevProgress + milisecond / 10 / duration; // cursor speed
-
-          audioRef.current && setCurrentTime(audioRef.current.currentTime);
-          if (
-            audioRef.current &&
-            Math.floor(audioRef.current?.currentTime) === Math.floor(duration)
-          ) {
-            setIsPlaying(false);
-          }
-
-          return newProgress >= 100 ? 100 : newProgress;
-        });
-      }
-    };
 
     const interval = setInterval(
-      updateProgress,
+      () => updateProgress(milisecond),
 
       milisecond,
     );
@@ -106,6 +89,23 @@ const AudioPlayer = ({ data, url, name }: Props) => {
       document.removeEventListener('mouseup', handleMouseUp);
     };
   }, [dragging]);
+  const updateProgress = (milisecond: number) => {
+    if (isPlaying && progress <= 100) {
+      setProgress((prevProgress) => {
+        const newProgress = prevProgress + milisecond / 10 / duration; // cursor speed
+
+        audioRef.current && setCurrentTime(audioRef.current.currentTime);
+        if (
+          audioRef.current &&
+          Math.floor(audioRef.current?.currentTime) === Math.floor(duration)
+        ) {
+          setIsPlaying(false);
+        }
+
+        return newProgress >= 100 ? 100 : newProgress;
+      });
+    }
+  };
   const calculateProgress = (event: React.MouseEvent<HTMLCanvasElement>) => {
     const divWidth = (event.target as HTMLCanvasElement).offsetWidth;
     const clickPosition =
@@ -119,7 +119,6 @@ const AudioPlayer = ({ data, url, name }: Props) => {
       audioRef.current.currentTime = newCurrentTime;
     }
   };
-
   const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {
     if (!isPlaying && audioRef.current) {
       setIsPlaying(true);
@@ -182,7 +181,7 @@ const AudioPlayer = ({ data, url, name }: Props) => {
           )}
         </button>
         <div className='flex'>
-          <div className=' mt-auto w-[50px] pr-2'>
+          <div className=' mt-auto w-[50px] pr-2 select-none'>
             {calculateTime(currentTime)}
           </div>
           <div className=' relative w-[600px]'>
@@ -197,11 +196,11 @@ const AudioPlayer = ({ data, url, name }: Props) => {
 
             <div
               style={{ left: `${progress}%`, top: 0 }}
-              className='cursor bg-black w-[1px] h-[100px] absolute pointer-events-none'
+              className='cursor bg-black w-[1px]  h-[100px] absolute '
             ></div>
           </div>
 
-          <div className='mt-auto w-[50px] pl-2'>
+          <div className='mt-auto w-[50px] pl-2 select-none'>
             {duration && !isNaN(duration) && calculateTime(duration)}
           </div>
         </div>

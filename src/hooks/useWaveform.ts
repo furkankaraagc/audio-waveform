@@ -38,6 +38,7 @@ const useWaveform = () => {
       if (typeof url === 'string') {
         const response = await fetch(url);
         const arrayBuffer = await response.arrayBuffer();
+
         const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
         filterData(audioBuffer);
       } else {
